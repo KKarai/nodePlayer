@@ -1,0 +1,16 @@
+nav(class="navbar  navbar-default" role="navigation")
+    .container
+        div(class="navbar-header")
+            a(class="navbar-brand" href="/") Player
+        div(collapse navbar-collapse)
+            ul(class="nav navbar-nav navbar-right")
+                li
+                    if user
+                        .user-menu.clearfix
+                            .info
+                                span(class="name") #{user.username}
+                                a(href="/logout") Выйти
+                            .avatar
+                                img(src=user.photoUrl class="img-circle")
+                     else
+                        a( href="/auth/vk") Войти
