@@ -26,6 +26,7 @@ module.exports = function (passport) {
 
 
     passport.deserializeUser(function (data, done) {
+        console.log(data);
         try {
             done(null, JSON.parse(data));
         } catch (e) {

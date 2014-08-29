@@ -59,31 +59,38 @@ var audioList = {
     },
     nextTrack: function() {
         var $nextrack = $('.current').next();
-        var $vkList  = $("#audiolist current");
-        var $corporateList = $("#corporateList current");
+        var $vkList  = $("#audiolist .current");
+        var $corporateList = $("#corporateList .current");
         if ($nextrack.length > 0) {
             audioList.play.call($nextrack);
-        } else if ($vklist.length > 0){
+        } else if ($vkList.length > 0) {
 
+            if (!audioList.none) {
             // подгрузка плейлиста по окончанию воспроизведения
-            vkUser.getAudioList(audioList.count, audioList.offset, function(res) {
-                if(res) {
-                    if (res.items.length > 0) {
-                        var renderObj = {
-                            items: res.items,
-                            formatedDuration: audioList.formDuration
-                        };
-                        audioList.offset += audioList.count;
-                        audioList.height += $("#audiolist").height() * 2.5;
-                        var rendered = Mustache.render(audioList.template,
-                                                       renderObj);
-                        $('#audiolist').append(rendered);
-                        audioList.nextTrack();
-                    } else {
-                        audioList.none = true;
+                vkUser.getAudioList(audioList.count, audioList.offset, function(res) {
+                    if(res) {
+                        if (res.items.length > 0) {
+                            var renderObj = {
+                                items: res.items,
+                                formatedDuration: audioList.formDuration
+                            };
+                            audioList.offset += audioList.count;
+                            audioList.height += $("#audiolist").height() * 2.5;
+                            var rendered = Mustache.render(audioList.template,
+                                                           renderObj);
+                            $('#audiolist').append(rendered);
+                            audioList.nextTrack();
+                        } else {
+                            audioList.none = true;
+                        }
                     }
-                }
-            });
+                });
+            } else {
+                var $current = $('.current');
+                $('#audiolist').scrollTop(0);
+                var $firstTrack  =  $current.parent().children(":first");
+                audioList.play.call($firstTrack);
+            }
         } else if ( $corporateList > 0 ) {
 
         }
@@ -147,4 +154,11 @@ $('.mejs-nexttrack').on('click','button' , function() {
 // Пред трек
 $('.mejs-prevtrack').on('click','button' , function() {
     audioList.prevTrack();
+});
+
+// socket.io events
+
+socket.on('news', function(data){
+    console.log(data);
+    socket.emit('my other event', {my: 'data'});
 });

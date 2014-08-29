@@ -15,7 +15,6 @@ module.exports = function(app, passport) {
             failureRedirect: '/auth'
         }),
         function (req, res) {
-            console.log(res);
             // Successful authentication
             //, redirect home.
             res.redirect('/');

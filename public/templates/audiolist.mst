@@ -9,6 +9,6 @@
         <div class="duration">
             <span class="duration">{{formatedDuration}}</span>
         </div>
-        <input type="hidden" artist="{{artist}}" title="{{title}}" duration={{formatedDuration}} value={{url}}>
+        <input type="hidden" artist="{{artist}}" title="{{title}}" duration={{formatedDuration}} value="{{url}}">
     </div>
 {{/items}}

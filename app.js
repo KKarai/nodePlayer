@@ -8,8 +8,7 @@ var cookieParser = require('cookie-parser');
 var session = require('express-session');
 var bodyParser = require('body-parser');
 var config = require('./config')
-
-
+var sessionStore = require('./sessionStore');
 
 var app = express();
 
@@ -22,10 +21,15 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded());
 app.use(cookieParser());
-app.use(session(config.get('session')));
+app.use(session({
+    secret: config.get('session:secret'),
+    key: config.get('session:key'),
+    cookie: config.get('session:cookie'),
+    store: sessionStore
+}));
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use(passport.initialize()); 
+app.use(passport.initialize());
 app.use(passport.session());
 
 app.use(app.router);

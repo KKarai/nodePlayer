@@ -10,7 +10,16 @@
             "maxAge": null
         }
     },
-
+    "mongoose": {
+        "uri": "mongodb://localhost/player",
+        "options": {
+            "server": {
+                "socketOptions": {
+                    "keepAlive": 1
+                }
+            }
+        }
+    },
     "auth": {
         "vk": {
             "app_id": 4517286,
