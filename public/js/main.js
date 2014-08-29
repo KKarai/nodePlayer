@@ -1,3 +1,4 @@
+var socket = io.connect('http://localhost');
 // Объект аудиолист с функциями play итд
 var audioList = {
     count: 50,
@@ -58,9 +59,13 @@ var audioList = {
     },
     nextTrack: function() {
         var $nextrack = $('.current').next();
+        var $vkList  = $("#audiolist current");
+        var $corporateList = $("#corporateList current");
         if ($nextrack.length > 0) {
             audioList.play.call($nextrack);
-        } else {
+        } else if ($vklist.length > 0){
+
+            // подгрузка плейлиста по окончанию воспроизведения
             vkUser.getAudioList(audioList.count, audioList.offset, function(res) {
                 if(res) {
                     if (res.items.length > 0) {
@@ -79,6 +84,7 @@ var audioList = {
                     }
                 }
             });
+        } else if ( $corporateList > 0 ) {
 
         }
     },
@@ -89,6 +95,7 @@ var audioList = {
 
 // Получаем аудиозаписи пользователя
 vkUser.getAudioList(audioList.count, audioList.offset, function(res) {
+    $('#floatingCirclesG').remove();
     $.get('/templates/audiolist.mst', function(template) {
         audioList.template = template;
         audioList.offset = audioList.count;
