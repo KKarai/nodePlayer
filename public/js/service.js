@@ -1,5 +1,6 @@
 (function() {
 // Получаем пользователя
+debugger
 $.ajax({
     url: "/api/vkuser",
     async: false,
@@ -37,7 +38,7 @@ Vk.prototype.getAudioList = function(count, offset, callback) {
 }
 
 // инициализация плееера
-player = new MediaElementPlayer('#player', {
+var player = new MediaElementPlayer('#player', {
     audioWidth: "100%",
     playlistposition: 'bottom',
     playlist: true,
