@@ -19,10 +19,15 @@
     float: right;
 }
 .users-online {
-    height: 50px;
+    min-height: 60px;
 }
 .users-online li {
     margin-left: 5px;
+}
+.users-online li p {
+    text-align: center;
+    color: #777;
+    margin: 0;
 }
 /* Аудиолисты */
 #audiolist {
@@ -36,6 +41,7 @@
     overflow: hidden;
     width: 100%;
     position: relative;
+    padding-left: 0;
 }
 .audio-info div {
     display: inline-block;
@@ -59,7 +65,10 @@
 }
 .audio-info .duration {
     float: right;
-    margin-right: 5px;
+    //margin-right: 5px;
+}
+.glyphicon {
+    font-size: 16px;
 }
 .current {
     background-color: #c4c4c4!important;

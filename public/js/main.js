@@ -178,16 +178,20 @@ socket
         var users = "";
         delete data[vkUser.id];
         for(var key in data ) {
-            users += "<li><img class='img-circle' id='" +  data[key].id + "' src='"
-                                                + data[key].photoUrl + "'></li>";
+            users += "<li><img class='img-circle' id='"
+                        +  data[key].id + "' src='" + data[key].photoUrl
+                        + "'><p class='message-online'>Online</p></li>";
+
         }
         $(users).appendTo('.users-online').hide().fadeIn('slow');
     })
     // При подключении любого пользователя
     .on('join', function(data) {
-        if ($('#' + data.id).length === 0 && data.id != vkUser.id) {
-            var user = "<li><img class='img-circle' id='" + data.id + "' src='"
-                                                    + data.photoUrl + "'></li>"
+    if ($('#' + data.id).length === 0 && data.id != vkUser.id) {
+            var user = "<li><img class='img-circle' id='"
+                        + data.id + "' src='"+ data.photoUrl
+                        + "'><p class='message-online'>Online</p></li>"
+
             $(user).appendTo('.users-online').hide().fadeIn('slow');
         }
     })
