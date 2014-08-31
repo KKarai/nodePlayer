@@ -8,11 +8,12 @@
   "dependencies": {
     "express": "~3.4.8",
     "connect-mongo": "*",
-    "mongoose": "*"
+    "mongoose": "*",
     "express-session": "*",
     "nconf": "*",
     "passport": "*",
     "passport-vkontakte": "*",
+    " passport.socketio": "*",
     "static-favicon": "~1.0.0",
     "morgan": "~1.0.0",
     "cookie-parser": "~1.0.1",

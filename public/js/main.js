@@ -156,9 +156,44 @@ $('.mejs-prevtrack').on('click','button' , function() {
     audioList.prevTrack();
 });
 
-// socket.io events
+$('.mejs-playpause-button').on('click', 'button', function() {
+    debugger
+    var pause = $(this).parent().hasClass('mejs-pause');
+    if (pause) {
+        $('.current').find('.glyphicon-pause')
+                        .removeClass("glyphicon-pause")
+                        .addClass("glyphicon-play");
+    } else {
+        $('.current').find('.glyphicon-play')
+                        .removeClass("glyphicon-play")
+                        .addClass("glyphicon-pause");
+    }
 
-socket.on('news', function(data){
-    console.log(data);
-    socket.emit('my other event', {my: 'data'});
 });
+
+// socket.io events
+socket
+    // получаем список пользователей онлайн
+    .on('online', function(data) {
+        var users = "";
+        delete data[vkUser.id];
+        for(var key in data ) {
+            users += "<li><img class='img-circle' id='" +  data[key].id + "' src='"
+                                                + data[key].photoUrl + "'></li>";
+        }
+        $(users).appendTo('.users-online').hide().fadeIn('slow');
+    })
+    // При подключении любого пользователя
+    .on('join', function(data) {
+        if ($('#' + data.id).length === 0 && data.id != vkUser.id) {
+            var user = "<li><img class='img-circle' id='" + data.id + "' src='"
+                                                    + data.photoUrl + "'></li>"
+            $(user).appendTo('.users-online').hide().fadeIn('slow');
+        }
+    })
+    // При выходе любого пользователя
+    .on('leave', function(data) {
+        $('#' + data.id).hide('slow', function() {
+            this.parentElement.remove();
+        });
+    });
