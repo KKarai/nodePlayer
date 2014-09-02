@@ -64,8 +64,26 @@
     white-space: nowrap;
 }
 .audio-info .duration {
+    position: relative;
     float: right;
-    //margin-right: 5px;
+    margin-right: 5px;
+}
+.audio-info .audio_add-wrap {
+    position: absolute;
+    right: 8px;
+    text-align: center;
+    z-index: -1;
+    width: 30px;
+    height: 30px;
+}
+.audio-info .add-song {
+    font-size: 15px;
+}
+.over .duration {
+    z-index: -1;
+}
+.over .actions {
+    z-index: 10;
 }
 .glyphicon {
     font-size: 16px;

@@ -3,7 +3,7 @@ var socket = io.connect('http://localhost');
 var audioList = {
     count: 50,
     offset: 0,
-    height: $("#audiolist").height() * 2.5,
+    height: $("#audiolist").height() * 2,
     none: false, // признак по которому определяем подгружать треки дальше
     formDuration: function() {
         return Math.floor(this.duration / 60) + ':'
@@ -67,7 +67,8 @@ var audioList = {
 
             if (!audioList.none) {
             // подгрузка плейлиста по окончанию воспроизведения
-                vkUser.getAudioList(audioList.count, audioList.offset, function(res) {
+                vkUser.getAudioList(audioList.count,
+                                    audioList.offset, function(res) {
                     if(res) {
                         if (res.items.length > 0) {
                             var renderObj = {
@@ -102,7 +103,6 @@ var audioList = {
 
 // Получаем аудиозаписи пользователя
 vkUser.getAudioList(audioList.count, audioList.offset, function(res) {
-    $('#floatingCirclesG').remove();
     $.get('/templates/audiolist.mst', function(template) {
         audioList.template = template;
         audioList.offset = audioList.count;
@@ -110,18 +110,40 @@ vkUser.getAudioList(audioList.count, audioList.offset, function(res) {
                                        formatedDuration: audioList.formDuration,
                                        audioinfo: audioList.jsonInfo });
         $('#audiolist').append(rendered);
+        $('.audio_add-wrap').tipsy({gravity: 'se'});
     });
 });
 
 // Events
 
+// При наведении на кнопку добавить
+function vkAddActive(selector) {
+    if($(selector).parent().hasClass('current')) {
+        $(selector).css({ "opacity": "1", "color": "white" });
+    } else {
+        $(selector).css({ "opacity": "1", "color": "black" });
+    }
+}
+
+// При уходе с элемена
+function vkAddInActive(selector) {
+    if($(selector).parent().hasClass('current')) {
+        $(selector).css({ "opacity": "0.4", "color": "white" });
+    } else {
+        $(selector).css({ "opacity": "0.4", "color": "black" });
+    }
+}
+
+// Добавляем песню
+function addSong(selector, e) {
+    e.stopPropagation();
+}
+
 // Подгрузка аудиозаписей по скроллу
 $('#audiolist').scroll(function() {
-
     var scrollTop = $("#audiolist").scrollTop();
     if (scrollTop >= audioList.height && !audioList.none) {
-
-        audioList.height += $("#audiolist").height() * 2.5;
+        audioList.height += $("#audiolist").height() * 3;
         vkUser.getAudioList(audioList.count, audioList.offset, function(res) {
             if(res) {
                 if (res.items.length > 0) {
@@ -133,6 +155,7 @@ $('#audiolist').scroll(function() {
                     var rendered = Mustache.render(audioList.template,
                                                    renderObj);
                     $('#audiolist').append(rendered);
+                    $('.audio_add-wrap').tipsy({gravity: 'se'});
                 } else {
                     audioList.none = true;
                 }
@@ -156,8 +179,8 @@ $('.mejs-prevtrack').on('click','button' , function() {
     audioList.prevTrack();
 });
 
+// На плеере play/pause button
 $('.mejs-playpause-button').on('click', 'button', function() {
-    debugger
     var pause = $(this).parent().hasClass('mejs-pause');
     if (pause) {
         $('.current').find('.glyphicon-pause')
@@ -168,7 +191,6 @@ $('.mejs-playpause-button').on('click', 'button', function() {
                         .removeClass("glyphicon-play")
                         .addClass("glyphicon-pause");
     }
-
 });
 
 // socket.io events
@@ -187,7 +209,7 @@ socket
     })
     // При подключении любого пользователя
     .on('join', function(data) {
-    if ($('#' + data.id).length === 0 && data.id != vkUser.id) {
+        if ($('#' + data.id).length === 0 && data.id != vkUser.id) {
             var user = "<li><img class='img-circle' id='"
                         + data.id + "' src='"+ data.photoUrl
                         + "'><p class='message-online'>Online</p></li>"
