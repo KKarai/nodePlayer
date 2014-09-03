@@ -1,5 +1,5 @@
 {{#items}}
-    <div class="audio-info" onmouseover="$(this).addClass('over')" onmouseout="$(this).removeClass('over')" col-md-12">
+    <div class="audio-info col-md-12" onmouseover="$(this).addClass('over')" onmouseout="$(this).removeClass('over')">
         <div class="play-icon">
             <span class="play glyphicon glyphicon-play"></span>
         </div>

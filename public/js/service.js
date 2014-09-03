@@ -34,7 +34,25 @@ Vk.prototype.getAudioList = function(count, offset, callback) {
             console.log(msg.responseText);
         }
     });
-}
+};
+
+Vk.prototype.audioSearch = function(q, count, offset, callback) {
+    var path = "https://api.vk.com/method/audio.search?q=" + q
+              + "&auto_complete=1" + "&v=5.24&count=" + count
+              + "&search_own=1" + "&offset=" + offset
+              + "&access_token="+ this.token ;
+    $.ajax({
+        url: path,
+        dataType: 'jsonp',
+        success: function(msg) {
+            console.log(msg);
+            callback(msg.response);
+        },
+        error: function(msg) {
+            console.log(msg.responseText);
+        }
+    });
+};
 
 // инициализация плееера
 window.player = new MediaElementPlayer('#player', {
@@ -65,18 +83,14 @@ window.player = new MediaElementPlayer('#player', {
             var $current = $('.current');
             if (loop.length > 0) {
                 audioList.repeat();
-            } else if (audioList.none && $current.next().length === 0) {
-                var $firstTrack  =  $current.parent().children(":first");
-                audioList.play.call($firstTrack);
             } else {
                 audioList.nextTrack();
             }
         });
         // При ошибке след. трек
         mediaElement.addEventListener('error', function(e) {
-            setTimeout(function() {
-                audioList.nextTrack();
-            }, 3000);
+            debugger
+            audioList.nextTrack();
         });
     }
 });

@@ -1,6 +1,8 @@
 var socket = io.connect('http://localhost');
+
 // Объект аудиолист с функциями play итд
 var audioList = {
+    type: 'all',
     count: 50,
     offset: 0,
     height: $("#audiolist").height() * 2,
@@ -67,26 +69,53 @@ var audioList = {
 
             if (!audioList.none) {
             // подгрузка плейлиста по окончанию воспроизведения
-                vkUser.getAudioList(audioList.count,
-                                    audioList.offset, function(res) {
-                    if(res) {
-                        if (res.items.length > 0) {
-                            var renderObj = {
-                                items: res.items,
-                                formatedDuration: audioList.formDuration
-                            };
-                            audioList.offset += audioList.count;
-                            audioList.height += $("#audiolist").height() * 2.5;
-                            var rendered = Mustache.render(audioList.template,
-                                                           renderObj);
-                            $('#audiolist').append(rendered);
-                            audioList.nextTrack();
-                        } else {
-                            audioList.none = true;
+                if (audioList.type === 'all') {
+                    vkUser.getAudioList(audioList.count,
+                                        audioList.offset, function(res) {
+                      if(res) {
+                          if (res.items.length > 0) {
+                              var renderObj = {
+                                  items: res.items,
+                                  formatedDuration: audioList.formDuration
+                              };
+                              audioList.offset += audioList.count;
+                              audioList.height += $("#audiolist").height() * 3;
+                              var rendered = Mustache.render(audioList.template,
+                                                             renderObj);
+                              $('#audiolist').append(rendered);
+                              $('.audio_add-wrap').tipsy({ gravity: 'se'});
+                              audioList.nextTrack();
+                          } else {
+                              audioList.none = true;
+                          }
+                      }
+                    });
+                } else if (audioList.type === 'search') {
+                    var q = $("#search").val();
+                    vkUser.audioSearch(q, audioList.count,
+                                        audioList.offset, function(res){
+                        if(res) {
+                            if (res.items.length > 0) {
+                                var renderObj = {
+                                    items: res.items,
+                                    formatedDuration: audioList.formDuration
+                                };
+                                audioList.offset += audioList.count;
+                                audioList.height += $("#audiolist").height() * 3;
+                                var rendered = Mustache.render(audioList.template,
+                                                               renderObj);
+                                $('#audiolist').append(rendered);
+                                $('.audio_add-wrap').tipsy({ gravity: 'se'});
+                                audioList.nextTrack();
+                            } else {
+                                audioList.none = true;
+                            }
                         }
-                    }
-                });
+                    });
+                    //audioList.nextTrack();
+                }
             } else {
+                debugger
                 var $current = $('.current');
                 $('#audiolist').scrollTop(0);
                 var $firstTrack  =  $current.parent().children(":first");
@@ -103,6 +132,7 @@ var audioList = {
 
 // Получаем аудиозаписи пользователя
 vkUser.getAudioList(audioList.count, audioList.offset, function(res) {
+    $('#audiolist').empty();
     $.get('/templates/audiolist.mst', function(template) {
         audioList.template = template;
         audioList.offset = audioList.count;
@@ -110,11 +140,11 @@ vkUser.getAudioList(audioList.count, audioList.offset, function(res) {
                                        formatedDuration: audioList.formDuration,
                                        audioinfo: audioList.jsonInfo });
         $('#audiolist').append(rendered);
-        $('.audio_add-wrap').tipsy({gravity: 'se'});
+        $('.audio_add-wrap').tipsy({ gravity: 'se' });
     });
 });
 
-// Events
+
 
 // При наведении на кнопку добавить
 function vkAddActive(selector) {
@@ -139,28 +169,98 @@ function addSong(selector, e) {
     e.stopPropagation();
 }
 
-// Подгрузка аудиозаписей по скроллу
-$('#audiolist').scroll(function() {
+// Скроллы плейлистов
+function scrollAll() {
+    var scrollTop = $("#audiolist").scrollTop();
+
+    if (scrollTop >= audioList.height && !audioList.none) {
+        audioList.offset += audioList.count;
+        audioList.height += $("#audiolist").height() * 3;
+        vkUser.getAudioList(audioList.count,
+                            audioList.offset, vkCallback);
+    }
+}
+
+function scrollSearch() {
     var scrollTop = $("#audiolist").scrollTop();
     if (scrollTop >= audioList.height && !audioList.none) {
+        var q = $("#search").val();
+        audioList.offset += audioList.count;
         audioList.height += $("#audiolist").height() * 3;
-        vkUser.getAudioList(audioList.count, audioList.offset, function(res) {
-            if(res) {
-                if (res.items.length > 0) {
+        vkUser.audioSearch(q, audioList.count, audioList.offset, vkCallback);
+    }
+}
+
+// Коллбэк для запросов вк
+function vkCallback(res) {
+    if(res) {
+        if (res.items.length > 0) {
+            var renderObj = {
+                items: res.items,
+                formatedDuration: audioList.formDuration
+            };
+            var rendered = Mustache.render(audioList.template,
+                                           renderObj);
+            $('#audiolist').append(rendered);
+            $('.audio_add-wrap').tipsy({ gravity: 'se'});
+        } else {
+            audioList.none = true;
+        }
+    }
+}
+
+// Events
+// Подгрузка аудиозаписей по скроллу
+$('#audiolist').scroll(function() {
+    if(audioList.type == 'all') {
+        scrollAll();
+    } else if (audioList.type == 'search'){
+        scrollSearch();
+    }
+});
+
+// Поиск
+var timeout = null;
+$('#search').on('keyup', function(event) {
+    audioList.offset = 0;
+    var q = $(this).val();
+    if (q !== "") {
+        clearTimeout(timeout);
+        timeout = setTimeout(function() {
+            vkUser.audioSearch(q, audioList.count, audioList.offset, function(res) {
+                if(res) {
+                    $('#audiolist').empty();
+                    audioList.type = 'search';
+                    audioList.offset =  audioList.count;
+                    audioList.none = false;
+                    audioList.height = $("#audiolist").height() * 2;
                     var renderObj = {
                         items: res.items,
                         formatedDuration: audioList.formDuration
                     };
-                    audioList.offset += audioList.count;
                     var rendered = Mustache.render(audioList.template,
                                                    renderObj);
                     $('#audiolist').append(rendered);
-                    $('.audio_add-wrap').tipsy({gravity: 'se'});
-                } else {
-                    audioList.none = true;
+                    $('.audio_add-wrap').tipsy({ gravity: 'se'});
                 }
-            }
-        });
+            })
+        }.bind(this), 500);
+    } else {
+        clearTimeout(timeout);
+        timeout = setTimeout(function() {
+            vkUser.getAudioList(audioList.count, audioList.offset, function(res) {
+                $('#audiolist').empty();
+                audioList.type = 'all';
+                audioList.none = false;
+                audioList.offset = audioList.count;
+                audioList.height = $("#audiolist").height() * 2;
+                var rendered = Mustache.render(audioList.template, {
+                               items: res.items,
+                               formatedDuration: audioList.formDuration,
+                               audioinfo: audioList.jsonInfo });
+                $('#audiolist').append(rendered);
+            });
+        }.bind(this), 500);
     }
 });
 
@@ -200,26 +300,22 @@ socket
         var users = "";
         delete data[vkUser.id];
         for(var key in data ) {
-            users += "<li><img class='img-circle' id='"
-                        +  data[key].id + "' src='" + data[key].photoUrl
-                        + "'><p class='message-online'>Online</p></li>";
-
+            users += "<li id='" + data[key].id + "'><img class='img-circle' src='"
+            + data[key].photoUrl + "'><p class='message-online'>Online</p></li>";
         }
         $(users).appendTo('.users-online').hide().fadeIn('slow');
     })
     // При подключении любого пользователя
     .on('join', function(data) {
         if ($('#' + data.id).length === 0 && data.id != vkUser.id) {
-            var user = "<li><img class='img-circle' id='"
-                        + data.id + "' src='"+ data.photoUrl
-                        + "'><p class='message-online'>Online</p></li>"
-
+            var user = "<li id='"+ data.id + "'><img class='img-circle' src='"
+            + data.photoUrl + "'><p class='message-online'>Online</p></li>"
             $(user).appendTo('.users-online').hide().fadeIn('slow');
         }
     })
     // При выходе любого пользователя
     .on('leave', function(data) {
         $('#' + data.id).hide('slow', function() {
-            this.parentElement.remove();
+            this.remove();
         });
     });
