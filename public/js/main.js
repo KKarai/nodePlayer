@@ -212,9 +212,9 @@ function vkCallback(res) {
 // Events
 // Подгрузка аудиозаписей по скроллу
 $('#audiolist').scroll(function() {
-    if(audioList.type == 'all') {
+    if (audioList.type == 'all') {
         scrollAll();
-    } else if (audioList.type == 'search'){
+    } else if (audioList.type == 'search') {
         scrollSearch();
     }
 });
@@ -259,6 +259,7 @@ $('#search').on('keyup', function(event) {
                                formatedDuration: audioList.formDuration,
                                audioinfo: audioList.jsonInfo });
                 $('#audiolist').append(rendered);
+                $('.audio_add-wrap').tipsy({ gravity: 'se'});
             });
         }.bind(this), 500);
     }
