@@ -11,6 +11,92 @@ $.ajax({
     }
 });
 
+window.service = {
+    get: function(path, callback) {
+        var result;
+        $.ajax({
+            type: "GET",
+            url: path,
+            async: typeof callback === 'function',
+            contentType: "application/json",
+            success: function(msg) {
+              if (callback) {
+                  callback.call(msg, msg);
+              } else {
+                  result = msg;
+              }
+            },
+            error: function(msg) {
+                console.log(msg.responseText);
+            }
+        });
+        return result;
+    },
+    post: function(path, data, callback) {
+        var result;
+        $.ajax({
+            type: "POST",
+            url: path,
+            async: typeof callback === 'function',
+            data : JSON.stringify(data),
+            contentType: "application/json",
+            success: function(msg) {
+                if (callback) {
+                  callback.call(msg, msg);
+                } else {
+                  result = msg;
+                }
+            },
+            error: function(msg) {
+                console.log(msg.responseText);
+            }
+        });
+        return result;
+    },
+    put: function(path, data, callback) {
+        var result;
+        $.ajax({
+            type: "PUT",
+            url: path,
+            async: typeof callback === 'function',
+            data : JSON.stringify(data),
+            contentType: "application/json",
+            success: function(msg) {
+                if (callback) {
+                  callback.call(msg, msg);
+                } else {
+                  result = msg;
+                }
+            },
+            error: function(msg) {
+                console.log(msg.responseText);
+            }
+        });
+        return result;
+    },
+    delete: function(path, callback) {
+        var result;
+        $.ajax({
+            type: "DELETE",
+            url: path,
+            async: typeof callback === 'function',
+            contentType: "application/json",
+            success: function(msg) {
+                if (callback) {
+                  callback.call(msg, msg);
+                } else {
+                  result = msg;
+                }
+            },
+            error: function(msg) {
+                console.log(msg.responseText);
+            }
+        });
+        return result;
+    }
+};
+
+
 // класс Вк
 function Vk (user) {
     this.id = user.id;
@@ -54,6 +140,7 @@ Vk.prototype.audioSearch = function(q, count, offset, callback) {
     });
 };
 
+
 // инициализация плееера
 window.player = new MediaElementPlayer('#player', {
     audioWidth: "100%",
@@ -70,7 +157,7 @@ window.player = new MediaElementPlayer('#player', {
         'duration',
         'volume'
     ],
-    enableAutosize: true,
+    enableKeyboard: false,
     success: function (mediaElement, domObject) {
         /*
             Добавляем событие по окончанию плейлиста
@@ -87,10 +174,15 @@ window.player = new MediaElementPlayer('#player', {
                 audioList.nextTrack();
             }
         });
+
         // При ошибке след. трек
         mediaElement.addEventListener('error', function(e) {
-            debugger
-            audioList.nextTrack();
+            var src = $('#player').attr('src');
+            if (src !== '/') {
+                setTimeout(function() {
+                    audioList.nextTrack();
+                }, 2000);
+            }
         });
     }
 });

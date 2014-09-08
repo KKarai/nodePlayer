@@ -6,7 +6,7 @@
         <div class="title-info ">
             <b><span class="artist">{{artist}}</span></b> - <span class="title">{{title}}</span>
         </div>
-        <div class="audio_add-wrap actions" original-title="Добавить в общий плейлист" onmouseover="vkAddActive(this)" onmouseout="vkAddInActive(this)" onclick="addSong(this, event)">
+        <div class="audio_add-wrap actions" original-title="Добавить в общий плейлист" onmouseover="addActive(this)" onmouseout="addInActive(this)" onclick="addSong(this, event)">
             <span class='add-song glyphicon glyphicon-plus'></span>
         </div>
         <div class="duration">

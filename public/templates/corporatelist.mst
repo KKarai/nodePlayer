@@ -1,0 +1,20 @@
+{{#items}}
+    <div class="audio-info col-md-12" onmouseover="$(this).addClass('over')" onmouseout="$(this).removeClass('over')">
+        <div class='mini-photo'>
+            <img src="{{userphoto}}" class="img-rounded">
+        </div>
+        <div class="play-icon">
+            <span class="play glyphicon glyphicon-play"></span>
+        </div>
+        <div class="title-info ">
+            <b><span class="artist">{{artist}}</span></b> - <span class="title">{{title}}</span>
+        </div>
+        <div class="audio_delete-wrap actions" original-title="Удалить" onmouseover="addActive(this)" onmouseout="addInActive(this)" onclick="deleteSong(this, event)">
+            <span class='add-song glyphicon glyphicon-remove'></span>
+        </div>
+        <div class="duration">
+            <span class="duration">{{duration}}</span>
+        </div>
+        <input type="hidden" id="{{_id}}" artist="{{artist}}" title="{{title}}" duration={{duration}} value="{{link}}">
+    </div>
+{{/items}}

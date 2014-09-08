@@ -62,7 +62,7 @@ var audioList = {
     nextTrack: function() {
         var $nextrack = $('.current').next();
         var $vkList  = $("#audiolist .current");
-        var $corporateList = $("#corporateList .current");
+        var $corporateList = $("#corporate-audiolist .current");
         if ($nextrack.length > 0) {
             audioList.play.call($nextrack);
         } else if ($vkList.length > 0) {
@@ -93,7 +93,7 @@ var audioList = {
                 } else if (audioList.type === 'search') {
                     var q = $("#search").val();
                     vkUser.audioSearch(q, audioList.count,
-                                        audioList.offset, function(res){
+                                        audioList.offset, function(res) {
                         if(res) {
                             if (res.items.length > 0) {
                                 var renderObj = {
@@ -115,19 +115,26 @@ var audioList = {
                     //audioList.nextTrack();
                 }
             } else {
-                debugger
                 var $current = $('.current');
                 $('#audiolist').scrollTop(0);
                 var $firstTrack  =  $current.parent().children(":first");
                 audioList.play.call($firstTrack);
             }
-        } else if ( $corporateList > 0 ) {
-
+        } else if ( $corporateList.length > 0 ) {
+            var $current = $('.current');
+            $('#corporate-audiolist').scrollTop(0);
+            var $firstTrack  =  $current.parent().children(":first");
+            audioList.play.call($firstTrack);
         }
     },
     repeat: function() {
         player.play();
     }
+};
+
+// Общий плейлист
+var corporateList = {
+    template: null
 };
 
 // Получаем аудиозаписи пользователя
@@ -144,10 +151,19 @@ vkUser.getAudioList(audioList.count, audioList.offset, function(res) {
     });
 });
 
-
+// Получаем общий плейлист
+service.get('/api/collections/playlist', function(res) {
+    $('#corporate-audiolist').empty();
+    $.get('templates/corporatelist.mst', function(template) {
+        corporateList.template = template;
+        var rendered = Mustache.render(template, { items: res });
+        $('#corporate-audiolist').append(rendered);
+        $('.audio_delete-wrap').tipsy({ gravity: 'se' });
+    });
+});
 
 // При наведении на кнопку добавить
-function vkAddActive(selector) {
+function addActive(selector) {
     if($(selector).parent().hasClass('current')) {
         $(selector).css({ "opacity": "1", "color": "white" });
     } else {
@@ -156,7 +172,7 @@ function vkAddActive(selector) {
 }
 
 // При уходе с элемена
-function vkAddInActive(selector) {
+function addInActive(selector) {
     if($(selector).parent().hasClass('current')) {
         $(selector).css({ "opacity": "0.4", "color": "white" });
     } else {
@@ -164,9 +180,30 @@ function vkAddInActive(selector) {
     }
 }
 
-// Добавляем песню
+// Добавляем песню в общий плейлист
 function addSong(selector, e) {
     e.stopPropagation();
+    var info = $(selector).parent().children('input');
+    var data = {
+        username: vkUser.username,
+        userphoto: vkUser.photoUrl,
+        artist: $(info).attr('artist'),
+        title: $(info).attr('title'),
+        duration: $(info).attr('duration'),
+        link: $(info).val()
+    };
+    service.post('/api/collections/playlist', data, function() {
+        console.log('Success');
+    });
+}
+
+function deleteSong(selector, e) {
+    e.stopPropagation();
+    var info = $(selector).parent().children('input');
+    var id = $(info).attr('id');
+    service.delete('/api/collections/playlist/' + id, function() {
+        console.log('Success');
+    });
 }
 
 // Скроллы плейлистов
@@ -227,40 +264,42 @@ $('#search').on('keyup', function(event) {
     if (q !== "") {
         clearTimeout(timeout);
         timeout = setTimeout(function() {
-            vkUser.audioSearch(q, audioList.count, audioList.offset, function(res) {
-                if(res) {
-                    $('#audiolist').empty();
-                    audioList.type = 'search';
-                    audioList.offset =  audioList.count;
-                    audioList.none = false;
-                    audioList.height = $("#audiolist").height() * 2;
-                    var renderObj = {
-                        items: res.items,
-                        formatedDuration: audioList.formDuration
-                    };
-                    var rendered = Mustache.render(audioList.template,
-                                                   renderObj);
-                    $('#audiolist').append(rendered);
-                    $('.audio_add-wrap').tipsy({ gravity: 'se'});
-                }
-            })
+            vkUser.audioSearch(q, audioList.count, audioList.offset,
+                function(res) {
+                    if(res) {
+                        $('#audiolist').empty();
+                        audioList.type = 'search';
+                        audioList.offset =  audioList.count;
+                        audioList.none = false;
+                        audioList.height = $("#audiolist").height() * 2;
+                        var renderObj = {
+                            items: res.items,
+                            formatedDuration: audioList.formDuration
+                        };
+                        var rendered = Mustache.render(audioList.template,
+                                                       renderObj);
+                        $('#audiolist').append(rendered);
+                        $('.audio_add-wrap').tipsy({ gravity: 'se'});
+                    }
+                })
         }.bind(this), 500);
     } else {
         clearTimeout(timeout);
         timeout = setTimeout(function() {
-            vkUser.getAudioList(audioList.count, audioList.offset, function(res) {
-                $('#audiolist').empty();
-                audioList.type = 'all';
-                audioList.none = false;
-                audioList.offset = audioList.count;
-                audioList.height = $("#audiolist").height() * 2;
-                var rendered = Mustache.render(audioList.template, {
-                               items: res.items,
-                               formatedDuration: audioList.formDuration,
-                               audioinfo: audioList.jsonInfo });
-                $('#audiolist').append(rendered);
-                $('.audio_add-wrap').tipsy({ gravity: 'se'});
-            });
+            vkUser.getAudioList(audioList.count, audioList.offset,
+                function(res) {
+                    $('#audiolist').empty();
+                    audioList.type = 'all';
+                    audioList.none = false;
+                    audioList.offset = audioList.count;
+                    audioList.height = $("#audiolist").height() * 2;
+                    var rendered = Mustache.render(audioList.template, {
+                                   items: res.items,
+                                   formatedDuration: audioList.formDuration,
+                                   audioinfo: audioList.jsonInfo });
+                    $('#audiolist').append(rendered);
+                    $('.audio_add-wrap').tipsy({ gravity: 'se'});
+                });
         }.bind(this), 500);
     }
 });
