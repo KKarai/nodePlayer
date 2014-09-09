@@ -7,6 +7,23 @@ var audioList = {
     offset: 0,
     height: $("#audiolist").height() * 2,
     none: false, // признак по которому определяем подгружать треки дальше
+    callback: function(res) {
+        if (res.items.length > 0) {
+            var renderObj = {
+                items: res.items,
+                formatedDuration: audioList.formDuration
+            };
+            audioList.offset += audioList.count;
+            audioList.height += $("#audiolist").height() * 3;
+            var rendered = Mustache.render(audioList.template,
+                                           renderObj);
+            $('#audiolist').append(rendered);
+            $('.audio_add-wrap').tipsy({ gravity: 'se'});
+            audioList.nextTrack();
+        } else {
+            audioList.none = true;
+        }
+    },
     formDuration: function() {
         return Math.floor(this.duration / 60) + ':'
                           + (this.duration % 60  < 10 ? '0'
@@ -65,54 +82,22 @@ var audioList = {
             if (!audioList.none) {
                 if (audioList.type === 'all') {
                     vkUser.getAudioList(audioList.count,audioList.offset,
-                    function(res) {
-                      if (res.items.length > 0) {
-                          var renderObj = {
-                              items: res.items,
-                              formatedDuration: audioList.formDuration
-                          };
-                          audioList.offset += audioList.count;
-                          audioList.height += $("#audiolist").height() * 3;
-                          var rendered = Mustache.render(audioList.template,
-                                                         renderObj);
-                          $('#audiolist').append(rendered);
-                          $('.audio_add-wrap').tipsy({ gravity: 'se'});
-                          audioList.nextTrack();
-                      } else {
-                          audioList.none = true;
-                      }
-                    });
+                                        audioList.callback);
                 } else if (audioList.type === 'search') {
                     var q = $("#search").val();
                     vkUser.audioSearch(q, audioList.count,audioList.offset,
-                    function(res) {
-                        if (res.items.length > 0) {
-                            var renderObj = {
-                                items: res.items,
-                                formatedDuration: audioList.formDuration
-                            };
-                            audioList.offset += audioList.count;
-                            audioList.height += $("#audiolist").height() * 3;
-                            var rendered = Mustache.render(audioList.template,
-                                                           renderObj);
-                            $('#audiolist').append(rendered);
-                            $('.audio_add-wrap').tipsy({ gravity: 'se'});
-                            audioList.nextTrack();
-                        } else {
-                            audioList.none = true;
-                        }
-                    });
+                                       audioList.callback);
                 }
             } else {
                 var $current = $('.current');
-                $('#audiolist').scrollTop(0);
                 var $firstTrack  =  $current.parent().children(":first");
+                $('#audiolist').scrollTop(0);
                 audioList.play.call($firstTrack);
             }
         } else if ( $corporateList.length > 0 ) {
             var $current = $('.current');
-            $('#corporate-audiolist').scrollTop(0);
             var $firstTrack  =  $current.parent().children(":first");
+            $('#corporate-audiolist').scrollTop(0);
             audioList.play.call($firstTrack);
         }
     },
@@ -222,8 +207,7 @@ function vkCallback(res) {
                 items: res.items,
                 formatedDuration: audioList.formDuration
             };
-            var rendered = Mustache.render(audioList.template,
-                                           renderObj);
+            var rendered = Mustache.render(audioList.template, renderObj);
             $('#audiolist').append(rendered);
             $('.audio_add-wrap').tipsy({ gravity: 'se'});
         } else {
