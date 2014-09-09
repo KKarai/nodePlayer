@@ -21,20 +21,16 @@ var audioList = {
         var headingText = $(this).find('.title-info').text();
 
         if (current[0] !== thisElement[0]) {
-            // убираем у прошлого элемента класс
             current.removeClass('current');
             current.find('.glyphicon-pause')
                             .removeClass("glyphicon-pause")
                             .addClass("glyphicon-play");
-            // Добавляем текущему
             $(this).addClass('current');
             $(this).find('.glyphicon-play')
                             .removeClass("glyphicon-play")
                             .addClass("glyphicon-pause");
-            // ставим заголовок
             $('.player-title').empty();
             $('.player-title').append(headingText);
-            // Меняем ссылку в плеере
             player.setSrc($(".current input")[0].value);
             player.play();
         } else {
@@ -66,53 +62,46 @@ var audioList = {
         if ($nextrack.length > 0) {
             audioList.play.call($nextrack);
         } else if ($vkList.length > 0) {
-
             if (!audioList.none) {
-            // подгрузка плейлиста по окончанию воспроизведения
                 if (audioList.type === 'all') {
-                    vkUser.getAudioList(audioList.count,
-                                        audioList.offset, function(res) {
-                      if(res) {
-                          if (res.items.length > 0) {
-                              var renderObj = {
-                                  items: res.items,
-                                  formatedDuration: audioList.formDuration
-                              };
-                              audioList.offset += audioList.count;
-                              audioList.height += $("#audiolist").height() * 3;
-                              var rendered = Mustache.render(audioList.template,
-                                                             renderObj);
-                              $('#audiolist').append(rendered);
-                              $('.audio_add-wrap').tipsy({ gravity: 'se'});
-                              audioList.nextTrack();
-                          } else {
-                              audioList.none = true;
-                          }
+                    vkUser.getAudioList(audioList.count,audioList.offset,
+                    function(res) {
+                      if (res.items.length > 0) {
+                          var renderObj = {
+                              items: res.items,
+                              formatedDuration: audioList.formDuration
+                          };
+                          audioList.offset += audioList.count;
+                          audioList.height += $("#audiolist").height() * 3;
+                          var rendered = Mustache.render(audioList.template,
+                                                         renderObj);
+                          $('#audiolist').append(rendered);
+                          $('.audio_add-wrap').tipsy({ gravity: 'se'});
+                          audioList.nextTrack();
+                      } else {
+                          audioList.none = true;
                       }
                     });
                 } else if (audioList.type === 'search') {
                     var q = $("#search").val();
-                    vkUser.audioSearch(q, audioList.count,
-                                        audioList.offset, function(res) {
-                        if(res) {
-                            if (res.items.length > 0) {
-                                var renderObj = {
-                                    items: res.items,
-                                    formatedDuration: audioList.formDuration
-                                };
-                                audioList.offset += audioList.count;
-                                audioList.height += $("#audiolist").height() * 3;
-                                var rendered = Mustache.render(audioList.template,
-                                                               renderObj);
-                                $('#audiolist').append(rendered);
-                                $('.audio_add-wrap').tipsy({ gravity: 'se'});
-                                audioList.nextTrack();
-                            } else {
-                                audioList.none = true;
-                            }
+                    vkUser.audioSearch(q, audioList.count,audioList.offset,
+                    function(res) {
+                        if (res.items.length > 0) {
+                            var renderObj = {
+                                items: res.items,
+                                formatedDuration: audioList.formDuration
+                            };
+                            audioList.offset += audioList.count;
+                            audioList.height += $("#audiolist").height() * 3;
+                            var rendered = Mustache.render(audioList.template,
+                                                           renderObj);
+                            $('#audiolist').append(rendered);
+                            $('.audio_add-wrap').tipsy({ gravity: 'se'});
+                            audioList.nextTrack();
+                        } else {
+                            audioList.none = true;
                         }
                     });
-                    //audioList.nextTrack();
                 }
             } else {
                 var $current = $('.current');
@@ -132,7 +121,6 @@ var audioList = {
     }
 };
 
-// Общий плейлист
 var corporateList = {
     template: null
 };
@@ -162,7 +150,7 @@ service.get('/api/collections/playlist', function(res) {
     });
 });
 
-// При наведении на кнопку добавить
+
 function addActive(selector) {
     if($(selector).parent().hasClass('current')) {
         $(selector).css({ "opacity": "1", "color": "white" });
@@ -171,7 +159,6 @@ function addActive(selector) {
     }
 }
 
-// При уходе с элемена
 function addInActive(selector) {
     if($(selector).parent().hasClass('current')) {
         $(selector).css({ "opacity": "0.4", "color": "white" });
@@ -180,7 +167,6 @@ function addInActive(selector) {
     }
 }
 
-// Добавляем песню в общий плейлист
 function addSong(selector, e) {
     e.stopPropagation();
     var info = $(selector).parent().children('input');
