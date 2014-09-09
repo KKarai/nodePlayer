@@ -1,5 +1,5 @@
 var socket = io.connect('http://localhost');
-console.log('р1');
+
 // Объект аудиолист с функциями play итд
 var audioList = {
     type: 'all',
