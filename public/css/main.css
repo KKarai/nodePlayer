@@ -1,5 +1,14 @@
-body {
-    background: url('/img/ground.png') ;
+.intro {
+    width: 100%;
+    height: 100%;
+    background: url('/img/ground.png');
+    position: absolute;
+}
+.login-intro {
+    width: 100%;
+    height: 100%;
+    background: url('/img/intro-image.png');
+    position: absolute;
 }
 
 /* Инпуты */
@@ -12,6 +21,18 @@ textarea:focus, input:focus,.btn:focus, input[type]:focus, .uneditable-input:foc
     position: relative;
 }
 
+/* center */
+.center {
+    text-align: center;
+}
+
+.big-text {
+    font-size: 63px;
+}
+.jumbotron {
+    background: url('/img/jumbo.png') ;
+    color: #fff;
+}
 /* style icon */
 .inner-addon .glyphicon {
   position: absolute;
@@ -148,7 +169,6 @@ textarea:focus, input:focus,.btn:focus, input[type]:focus, .uneditable-input:foc
 .mejs-button button {
     outline: none!important;
 }
-
 /* Футер*/
 .footer {
     position: fixed;

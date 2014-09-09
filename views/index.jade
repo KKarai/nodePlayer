@@ -1,12 +1,15 @@
 extends layout
 
 block content
-    include ./navbar
     if user
-        include ./player
-        include ./footer
+        .intro
+            include ./navbar
+            include ./player
+            include ./footer
         script(type="text/javascript" src="/js/service.js")
         script(type="text/javascript" src="/js/main.js")
     else
-        include ./frontpage
-        include ./footer
+        .login-intro
+            include ./navbar
+            include ./frontpage
+            include ./footer

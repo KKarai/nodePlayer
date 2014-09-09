@@ -71,7 +71,7 @@ module.exports = function(app, passport) {
             console.log(user);
             song.save(function(err, song, affected){
                 if (err) return next(err);
-                res.send('success');
+                res.json(song);
             });
         } else {
             res.status(401).send('Unauthorized');
@@ -90,9 +90,9 @@ module.exports = function(app, passport) {
     });
     app.delete('/api/collections/playlist/:id', function(req, res) {
         if (req.user) {
-            CorporatePlaylist.remove({ _id: req.params.id }, function(err) {
+            CorporatePlaylist.remove({ _id: req.params.id }, function(err, song) {
                 if (err) return next(err);
-                res.send('success');
+                res.json({"id": req.params.id});
             });
         } else {
             res.status(401).send('Unauthorized');

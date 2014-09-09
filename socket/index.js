@@ -33,14 +33,20 @@ module.exports = function(server) {
         var user = socket.request.user;
         if (!online[user.id]) {
             online[user.id] = user;
-            // Всем кроме себя посылаем, нового пользователя
             socket.broadcast.emit('join', user);
         }
 
         // Текущему пользователю посылаем список онлайн
         io.sockets.connected[socket.id].emit('online', online);
 
-        // При дисконнекте
+        socket.on('newsong', function(data) {
+            io.sockets.emit('addSong', data);
+        });
+
+        socket.on('delete', function(data) {
+            io.sockets.emit('deleteSong', data);
+        });
+
         socket.on('disconnect', function() {
             delete online[user.id];
             setTimeout(function() {

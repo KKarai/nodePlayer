@@ -9,7 +9,7 @@
         <div class="title-info ">
             <b><span class="artist">{{artist}}</span></b> - <span class="title">{{title}}</span>
         </div>
-        <div class="audio_delete-wrap actions" original-title="Удалить" onmouseover="addActive(this)" onmouseout="addInActive(this)" onclick="deleteSong(this, event)">
+        <div class="audio_delete-wrap actions" style="display: none" original-title="Удалить" onmouseover="addActive(this)" onmouseout="addInActive(this)" onclick="deleteSong(this, event)">
             <span class='add-song glyphicon glyphicon-remove'></span>
         </div>
         <div class="duration">

@@ -131,6 +131,7 @@ service.get('/api/collections/playlist', function(res) {
         corporateList.template = template;
         var rendered = Mustache.render(template, { items: res });
         $('#corporate-audiolist').append(rendered);
+        $('.audio_delete-wrap').show();
         $('.audio_delete-wrap').tipsy({ gravity: 'se' });
     });
 });
@@ -164,7 +165,7 @@ function addSong(selector, e) {
         link: $(info).val()
     };
     service.post('/api/collections/playlist', data, function() {
-        console.log('Success');
+        socket.emit('newsong', this);
     });
 }
 
@@ -173,7 +174,7 @@ function deleteSong(selector, e) {
     var info = $(selector).parent().children('input');
     var id = $(info).attr('id');
     service.delete('/api/collections/playlist/' + id, function() {
-        console.log('Success');
+        socket.emit('delete', this);
     });
 }
 
@@ -310,14 +311,18 @@ socket
         var users = "";
         delete data[vkUser.id];
         for(var key in data ) {
-            users += "<li id='" + data[key].id + "'><img class='img-circle' src='"
-            + data[key].photoUrl + "'><p class='message-online'>Online</p></li>";
+            if ($('#' + key).length == 0) {
+                users +=
+                "<li id='" + data[key].id + "'><img class='img-circle' src='"
+                + data[key].photoUrl
+                + "'><p class='message-online'>Online</p></li>";
+            }
         }
         $(users).appendTo('.users-online').hide().fadeIn('slow');
     })
     // При подключении любого пользователя
     .on('join', function(data) {
-        if ($('#' + data.id).length === 0 && data.id != vkUser.id) {
+        if ($('#' + data.id).length == 0 && data.id != vkUser.id) {
             var user = "<li id='"+ data.id + "'><img class='img-circle' src='"
             + data.photoUrl + "'><p class='message-online'>Online</p></li>"
             $(user).appendTo('.users-online').hide().fadeIn('slow');
@@ -326,6 +331,20 @@ socket
     // При выходе любого пользователя
     .on('leave', function(data) {
         $('#' + data.id).hide('slow', function() {
+            this.remove();
+        });
+    })
+    .on('addSong', function(data) {
+        var rendered = Mustache.render(corporateList.template, { items: data });
+        $(rendered).appendTo('#corporate-audiolist').hide().fadeIn('slow',
+            function() {
+                $(this).children('.audio_delete-wrap').show();
+                $(this).children('.audio_delete-wrap').tipsy({ gravity: 'se'});
+            });
+    })
+    .on('deleteSong', function(data) {
+        $('#' + data.id).parent().hide('slow', function() {
+            $(".tipsy").remove();
             this.remove();
         });
     });
