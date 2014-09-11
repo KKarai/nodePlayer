@@ -183,8 +183,6 @@ function scrollAll() {
     var scrollTop = $("#audiolist").scrollTop();
 
     if (scrollTop >= audioList.height && !audioList.none) {
-        audioList.offset += audioList.count;
-        audioList.height += $("#audiolist").height() * 3;
         vkUser.getAudioList(audioList.count,
                             audioList.offset, vkCallback);
     }
@@ -194,9 +192,8 @@ function scrollSearch() {
     var scrollTop = $("#audiolist").scrollTop();
     if (scrollTop >= audioList.height && !audioList.none) {
         var q = $("#search").val();
-        audioList.offset += audioList.count;
-        audioList.height += $("#audiolist").height() * 3;
         vkUser.audioSearch(q, audioList.count, audioList.offset, vkCallback);
+
     }
 }
 
@@ -208,6 +205,8 @@ function vkCallback(res) {
                 items: res.items,
                 formatedDuration: audioList.formDuration
             };
+            audioList.offset += audioList.count;
+            audioList.height += $("#audiolist").height() * 3;
             var rendered = Mustache.render(audioList.template, renderObj);
             $('#audiolist').append(rendered);
             $('.audio_add-wrap').tipsy({ gravity: 'se'});
