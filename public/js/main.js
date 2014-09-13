@@ -185,6 +185,8 @@ function scrollAll() {
     if (scrollTop >= audioList.height && !audioList.none) {
         vkUser.getAudioList(audioList.count,
                             audioList.offset, vkCallback);
+        audioList.offset += audioList.count;
+        audioList.height += $("#audiolist").height() * 3;
     }
 }
 
@@ -193,7 +195,8 @@ function scrollSearch() {
     if (scrollTop >= audioList.height && !audioList.none) {
         var q = $("#search").val();
         vkUser.audioSearch(q, audioList.count, audioList.offset, vkCallback);
-
+        audioList.offset += audioList.count;
+        audioList.height += $("#audiolist").height() * 3;
     }
 }
 
@@ -205,8 +208,7 @@ function vkCallback(res) {
                 items: res.items,
                 formatedDuration: audioList.formDuration
             };
-            audioList.offset += audioList.count;
-            audioList.height += $("#audiolist").height() * 3;
+
             var rendered = Mustache.render(audioList.template, renderObj);
             $('#audiolist').append(rendered);
             $('.audio_add-wrap').tipsy({ gravity: 'se'});
