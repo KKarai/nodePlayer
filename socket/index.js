@@ -42,7 +42,7 @@ module.exports = function(server) {
         socket.on('newsong', function(data) {
             io.sockets.emit('addSong', data);
         });
-
+//kakoe to pidorstvo
         socket.on('delete', function(data) {
             io.sockets.emit('deleteSong', data);
         });
